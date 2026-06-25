@@ -1,182 +1,141 @@
-import tkinter as tk
-from tkinter import scrolledtext, font
-import threading
+"""
+Shopify Agentic Assistant — Desktop Web UI
+Uses pywebview to create a native floating window with the web-based chat interface.
+Flask serves the API and static files in the background.
+"""
+
+import os
 import uuid
+import threading
+import time
+import re
+import ctypes
+
+from flask import Flask, send_from_directory, request, jsonify
+import webview
+
 import history_manager
-import shopify_api
 import llm_router
 
-class AgentChatWindow:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Shopify Agentic Assistant")
-        self.root.geometry("800x600")
-        
-        # This makes the window "floating" (always on top of other windows)
-        self.root.attributes("-topmost", True)  
-        self.root.configure(bg="#f4f6f9")
-        
-        self.current_session_id = str(uuid.uuid4())
-        self.message_history = []
-        
-        # Main layout: PanedWindow for resizable sidebar
-        self.paned_window = tk.PanedWindow(root, orient=tk.HORIZONTAL, sashwidth=5, bg="#d1d5db")
-        self.paned_window.pack(fill=tk.BOTH, expand=True)
-        
-        # Left Sidebar (History)
-        self.sidebar = tk.Frame(self.paned_window, bg="#2c3e50", width=200)
-        self.paned_window.add(self.sidebar, minsize=150)
-        
-        self.new_chat_btn = tk.Button(self.sidebar, text="+ New Chat", bg="#1abc9c", fg="white", 
-                                      font=("Segoe UI", 11, "bold"), relief="flat", command=self.start_new_chat)
-        self.new_chat_btn.pack(fill=tk.X, padx=10, pady=15)
-        
-        self.history_listbox = tk.Listbox(self.sidebar, bg="#34495e", fg="white", font=("Segoe UI", 10), 
-                                          relief="flat", selectbackground="#1abc9c", highlightthickness=0)
-        self.history_listbox.pack(fill=tk.BOTH, expand=True, padx=10, pady=(0, 10))
-        self.history_listbox.bind('<<ListboxSelect>>', self.load_selected_chat)
-        
-        # Database Status Label
-        db_status_color = "#2ecc71" if history_manager.is_db_connected() else "#e74c3c"
-        db_status_text = "● MongoDB Connected" if history_manager.is_db_connected() else "● Local Storage"
-        self.db_status_label = tk.Label(self.sidebar, text=db_status_text, bg="#2c3e50", fg=db_status_color, font=("Segoe UI", 9, "bold"))
-        self.db_status_label.pack(side=tk.BOTTOM, pady=10)
-        
-        self.session_map = [] # Maps listbox index to session_id
-        
-        # Right Chat Area
-        self.chat_frame = tk.Frame(self.paned_window, bg="#f4f6f9")
-        self.paned_window.add(self.chat_frame, minsize=400)
-        
-        # Custom Fonts
-        self.header_font = font.Font(family="Segoe UI", size=10, weight="bold")
-        self.text_font = font.Font(family="Segoe UI", size=10)
-        
-        self.chat_display = scrolledtext.ScrolledText(self.chat_frame, wrap=tk.WORD, state='disabled', 
-                                                      bg="#ffffff", font=self.text_font, relief="flat", padx=15, pady=15)
-        self.chat_display.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
-        
-        # Tags for colored headers and alignment
-        self.chat_display.tag_config("user_header", foreground="#007bff", font=self.header_font)
-        self.chat_display.tag_config("agent_header", foreground="#2c3e50", font=self.header_font)
-        self.chat_display.tag_config("system_header", foreground="#e67e22", font=self.header_font)
-        self.chat_display.tag_config("text", foreground="#333333")
-        self.chat_display.tag_config("spacing", font=("Segoe UI", 4))
-        
-        # Input Frame
-        input_frame = tk.Frame(self.chat_frame, bg="#f4f6f9")
-        input_frame.pack(padx=10, pady=(0, 10), fill=tk.X)
-        
-        self.entry_field = tk.Entry(input_frame, font=("Segoe UI", 11), relief="flat", highlightthickness=1, highlightbackground="#cccccc")
-        self.entry_field.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 10), ipady=5)
-        self.entry_field.bind("<Return>", self.send_message)
-        
-        self.send_button = tk.Button(input_frame, text="Send", command=self.send_message, bg="#007bff", fg="white", 
-                                     font=("Segoe UI", 10, "bold"), relief="flat", cursor="hand2")
-        self.send_button.pack(side=tk.RIGHT, ipadx=10, ipady=3)
-        
-        self.refresh_history_sidebar()
-        self.start_new_chat()
+# ------------------------------------------------------------------ App Setup
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+STATIC_DIR = os.path.join(BASE_DIR, "chat_ui")
 
-    def start_new_chat(self):
-        self.current_session_id = str(uuid.uuid4())
-        self.message_history = []
-        self.chat_display.config(state='normal')
-        self.chat_display.delete('1.0', tk.END)
-        self.chat_display.config(state='disabled')
-        self.append_message("System", "Agent UI started. Ready to help with your Shopify store!")
-        self.history_listbox.selection_clear(0, tk.END)
+flask_app = Flask(__name__, static_folder=STATIC_DIR)
 
-    def refresh_history_sidebar(self):
-        self.history_listbox.delete(0, tk.END)
-        sessions = history_manager.get_all_sessions()
-        self.session_map = []
-        for s in sessions:
-            self.history_listbox.insert(tk.END, s['title'])
-            self.session_map.append(s['session_id'])
+# In-memory session histories
+active_sessions = {}
 
-    def load_selected_chat(self, event):
-        selection = self.history_listbox.curselection()
-        if not selection:
-            return
-        index = selection[0]
-        session_id = self.session_map[index]
-        
-        self.current_session_id = session_id
+
+def strip_markdown(text):
+    """Remove markdown formatting characters for clean display."""
+    if not text:
+        return text
+    text = re.sub(r'\*\*(.+?)\*\*', r'\1', text)
+    text = re.sub(r'__(.+?)__', r'\1', text)
+    text = re.sub(r'(?<!\w)\*(.+?)\*(?!\w)', r'\1', text)
+    text = re.sub(r'(?<!\w)_(.+?)_(?!\w)', r'\1', text)
+    text = re.sub(r'^#{1,6}\s+', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^\*\s+', '  •  ', text, flags=re.MULTILINE)
+    return text
+
+
+# ------------------------------------------------------------------ Flask Routes
+@flask_app.route('/')
+def index():
+    return send_from_directory(STATIC_DIR, 'index.html')
+
+
+@flask_app.route('/<path:filename>')
+def static_files(filename):
+    return send_from_directory(STATIC_DIR, filename)
+
+
+@flask_app.route('/api/status')
+def api_status():
+    return jsonify({"db_connected": history_manager.is_db_connected()})
+
+
+@flask_app.route('/api/sessions')
+def api_sessions():
+    sessions = history_manager.get_all_sessions()
+    return jsonify({"sessions": sessions})
+
+
+@flask_app.route('/api/session/new', methods=['POST'])
+def api_new_session():
+    session_id = str(uuid.uuid4())
+    active_sessions[session_id] = []
+    return jsonify({"session_id": session_id})
+
+
+@flask_app.route('/api/session/<session_id>')
+def api_get_session(session_id):
+    messages = history_manager.get_session_messages(session_id)
+    return jsonify({"session_id": session_id, "messages": messages})
+
+
+@flask_app.route('/api/session/<session_id>', methods=['DELETE'])
+def api_delete_session(session_id):
+    history_manager.delete_session(session_id)
+    active_sessions.pop(session_id, None)
+    return jsonify({"status": "deleted"})
+
+
+@flask_app.route('/api/send', methods=['POST'])
+def api_send():
+    data = request.get_json()
+    session_id = data.get('session_id')
+    user_message = data.get('message', '').strip()
+
+    if not session_id or not user_message:
+        return jsonify({"error": "session_id and message are required"}), 400
+
+    if session_id in active_sessions:
+        messages = active_sessions[session_id]
+    else:
         messages = history_manager.get_session_messages(session_id)
-        
-        self.chat_display.config(state='normal')
-        self.chat_display.delete('1.0', tk.END)
-        self.chat_display.config(state='disabled')
-        
-        display_messages = [m for m in messages if m.get("role") in ["user", "assistant"] and m.get("content")]
-        
-        if not display_messages:
-            self.append_message("System", "Empty chat loaded.")
-        
-        for msg in display_messages:
-            sender = "You" if msg["role"] == "user" else "Agent"
-            self.append_message(sender, msg["content"])
-            
-        self.message_history = messages
+        active_sessions[session_id] = messages
 
-    def append_message(self, sender, message):
-        self.chat_display.config(state='normal')
-        
-        if sender == "You":
-            header_tag = "user_header"
-        elif sender == "System":
-            header_tag = "system_header"
-        else:
-            header_tag = "agent_header"
-            
-        self.chat_display.insert(tk.END, f"{sender}:\n", header_tag)
-        self.chat_display.insert(tk.END, f"{message}\n", "text")
-        self.chat_display.insert(tk.END, "\n", "spacing")
-        
-        self.chat_display.see(tk.END)
-        self.chat_display.config(state='disabled')
+    history_manager.save_message(session_id, "user", user_message)
+    messages.append({"role": "user", "content": user_message})
 
-    def send_message(self, event=None):
-        user_text = self.entry_field.get().strip()
-        if not user_text:
-            return
-            
-        self.append_message("You", user_text)
-        self.entry_field.delete(0, tk.END)
-        
-        # Disable input while processing
-        self.entry_field.config(state='disabled')
-        self.send_button.config(state='disabled')
-        
-        # Run agent logic
-        threading.Thread(target=self.process_agent_response, args=(user_text,), daemon=True).start()
+    try:
+        response, messages = llm_router.process_agent_message(messages)
+        active_sessions[session_id] = messages
+        history_manager.save_full_session(session_id, messages)
+    except Exception as e:
+        response = f"Error processing with LLM: {str(e)}"
+        history_manager.save_message(session_id, "assistant", response)
 
-    def process_agent_response(self, text):
-        # Save initial user message
-        history_manager.save_message(self.current_session_id, "user", text)
-        self.message_history.append({"role": "user", "content": text})
-        
-        try:
-            response, self.message_history = llm_router.process_agent_message(self.message_history)
-            
-            # Save the entire updated history (including tool calls and assistant response)
-            history_manager.save_full_session(self.current_session_id, self.message_history)
-            
-        except Exception as e:
-            response = f"Error processing with LLM: {str(e)}"
-            history_manager.save_message(self.current_session_id, "assistant", response)
-            
-        self.root.after(0, self.enable_input, response)
-        
-    def enable_input(self, response):
-        self.append_message("Agent", response)
-        self.refresh_history_sidebar()
-        self.entry_field.config(state='normal')
-        self.send_button.config(state='normal')
-        self.entry_field.focus()
+    clean_response = strip_markdown(response)
+    return jsonify({"response": clean_response, "session_id": session_id})
 
+
+
+# ------------------------------------------------------------------ Main
 if __name__ == "__main__":
-    root = tk.Tk()
-    app = AgentChatWindow(root)
-    root.mainloop()
+    print("\n" + "=" * 50)
+    print("  Shopify Agentic Assistant — Desktop UI")
+    print("=" * 50 + "\n")
+
+    # Start Flask in the background
+    flask_thread = threading.Thread(
+        target=lambda: flask_app.run(host="127.0.0.1", port=5000, debug=False, use_reloader=False),
+        daemon=True
+    )
+    flask_thread.start()
+    time.sleep(1)  # Wait for Flask to start
+
+    # Main chat window (native desktop window)
+    webview.create_window(
+        'Shopify Agentic Assistant',
+        'http://127.0.0.1:5000',
+        width=960,
+        height=680,
+        min_size=(700, 500),
+        on_top=True,
+        text_select=True
+    )
+
+    webview.start()

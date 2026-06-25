@@ -73,6 +73,15 @@ def get_session_messages(session_id):
         data = _load_history_local()
         return data.get("sessions", {}).get(session_id, {}).get("messages", [])
 
+def delete_session(session_id):
+    if DB_CONNECTED:
+        collection.delete_one({"session_id": session_id})
+    else:
+        data = _load_history_local()
+        if "sessions" in data and session_id in data["sessions"]:
+            del data["sessions"][session_id]
+            _save_history_local(data)
+
 def save_message(session_id, role, content, tool_calls=None, name=None):
     timestamp = datetime.utcnow().isoformat() + "Z"
     msg = {"role": role, "content": content}
