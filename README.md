@@ -196,5 +196,3 @@ You can combine commands dynamically to perform agentic operations.
    ```bash
    python shopify.py products update 6 --description "Sleek Minimalist Leather Wallet - Now 30% off this weekend with code WEEKEND30!"
    ```
-#   S h o p i f y - A g e n t i c A s s i s t a n t  
- 
