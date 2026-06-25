@@ -1,0 +1,272 @@
+{
+  "products": [
+    {
+      "id": 1,
+      "name": "Aura Wireless Noise-Canceling Headphones",
+      "description": "Premium over-ear headphones with active noise cancellation, 30-hour battery life, and crystal-clear audio quality.",
+      "price": 199.99,
+      "sku": "AURA-WL-HP",
+      "inventory_item_id": 101,
+      "created_at": "2025-01-10T12:00:00Z"
+    },
+    {
+      "id": 2,
+      "name": "Apex Ergonomic Office Chair",
+      "description": "High-back mesh office chair featuring adjustable lumbar support, 3D armrests, and dynamic tilt functionality.",
+      "price": 289.5,
+      "sku": "APEX-ERG-CH",
+      "inventory_item_id": 102,
+      "created_at": "2025-02-15T09:30:00Z"
+    },
+    {
+      "id": 3,
+      "name": "Horizon 34-Inch Ultra-Wide Gaming Monitor",
+      "description": "Curved QHD display with 144Hz refresh rate, 1ms response time, and HDR10 support for immersive gaming.",
+      "price": 449.99,
+      "sku": "HORZ-UW-34",
+      "inventory_item_id": 103,
+      "created_at": "2025-03-01T15:45:00Z"
+    },
+    {
+      "id": 4,
+      "name": "Pulse Smart Fitness Watch",
+      "description": "Waterproof fitness tracker with continuous heart rate monitoring, sleep analysis, and built-in GPS.",
+      "price": 129.99,
+      "sku": "PLSE-SM-WT",
+      "inventory_item_id": 104,
+      "created_at": "2025-01-20T10:15:00Z"
+    },
+    {
+      "id": 5,
+      "name": "Volt 20,000mAh Portable Power Bank",
+      "description": "High-capacity external battery pack with dual USB-C Power Delivery ports for ultra-fast charging.",
+      "price": 39.99,
+      "sku": "VOLT-PB-20K",
+      "inventory_item_id": 105,
+      "created_at": "2025-04-12T08:00:00Z"
+    },
+    {
+      "id": 6,
+      "name": "Sleek Minimalist Leather Wallet",
+      "description": "Genuine top-grain leather card holder with RFID-blocking technology and slim pocket profile.",
+      "price": 45.0,
+      "sku": "SLK-MIN-WL",
+      "inventory_item_id": 106,
+      "created_at": "2025-05-05T14:20:00Z"
+    },
+    {
+      "id": 7,
+      "name": "EcoThread Organic Cotton T-Shirt",
+      "description": "Ultra-soft crewneck tee made from 100% certified organic cotton. Pre-shrunk and ethically sourced.",
+      "price": 25.0,
+      "sku": "ECO-TEE-ORG",
+      "inventory_item_id": 107,
+      "created_at": "2025-06-01T11:00:00Z"
+    }
+  ],
+  "inventory": [
+    {
+      "inventory_item_id": 101,
+      "product_id": 1,
+      "quantity": 45,
+      "location": "Primary Warehouse"
+    },
+    {
+      "inventory_item_id": 102,
+      "product_id": 2,
+      "quantity": 3,
+      "location": "Primary Warehouse"
+    },
+    {
+      "inventory_item_id": 103,
+      "product_id": 3,
+      "quantity": 15,
+      "location": "Secondary Warehouse"
+    },
+    {
+      "inventory_item_id": 104,
+      "product_id": 4,
+      "quantity": 28,
+      "location": "Primary Warehouse"
+    },
+    {
+      "inventory_item_id": 105,
+      "product_id": 5,
+      "quantity": 5,
+      "location": "Primary Warehouse"
+    },
+    {
+      "inventory_item_id": 106,
+      "product_id": 6,
+      "quantity": 110,
+      "location": "Primary Warehouse"
+    },
+    {
+      "inventory_item_id": 107,
+      "product_id": 7,
+      "quantity": 85,
+      "location": "Primary Warehouse"
+    }
+  ],
+  "orders": [
+    {
+      "id": 1001,
+      "customer_name": "Jane Doe",
+      "customer_email": "jane.doe@example.com",
+      "items": [
+        {
+          "product_id": 1,
+          "sku": "AURA-WL-HP",
+          "quantity": 1,
+          "price": 199.99
+        },
+        {
+          "product_id": 5,
+          "sku": "VOLT-PB-20K",
+          "quantity": 2,
+          "price": 39.99
+        }
+      ],
+      "total_price": 279.97,
+      "financial_status": "paid",
+      "fulfillment_status": "fulfilled",
+      "created_at": "2026-05-15T14:30:22Z"
+    },
+    {
+      "id": 1002,
+      "customer_name": "John Smith",
+      "customer_email": "john.smith@example.com",
+      "items": [
+        {
+          "product_id": 2,
+          "sku": "APEX-ERG-CH",
+          "quantity": 1,
+          "price": 289.5
+        }
+      ],
+      "total_price": 289.5,
+      "financial_status": "paid",
+      "fulfillment_status": "unfulfilled",
+      "created_at": "2026-06-01T09:12:05Z"
+    },
+    {
+      "id": 1003,
+      "customer_name": "Alice Johnson",
+      "customer_email": "alice.j@example.com",
+      "items": [
+        {
+          "product_id": 4,
+          "sku": "PLSE-SM-WT",
+          "quantity": 1,
+          "price": 129.99
+        },
+        {
+          "product_id": 6,
+          "sku": "SLK-MIN-WL",
+          "quantity": 1,
+          "price": 45.0
+        }
+      ],
+      "total_price": 174.99,
+      "financial_status": "paid",
+      "fulfillment_status": "fulfilled",
+      "created_at": "2026-06-10T18:45:30Z"
+    },
+    {
+      "id": 1004,
+      "customer_name": "Bob Miller",
+      "customer_email": "bob.miller@example.com",
+      "items": [
+        {
+          "product_id": 3,
+          "sku": "HORZ-UW-34",
+          "quantity": 1,
+          "price": 449.99
+        }
+      ],
+      "total_price": 449.99,
+      "financial_status": "refunded",
+      "fulfillment_status": "fulfilled",
+      "created_at": "2026-06-12T11:22:18Z"
+    },
+    {
+      "id": 1005,
+      "customer_name": "Emma Watson",
+      "customer_email": "emma.w@example.com",
+      "items": [
+        {
+          "product_id": 7,
+          "sku": "ECO-TEE-ORG",
+          "quantity": 3,
+          "price": 25.0
+        }
+      ],
+      "total_price": 75.0,
+      "financial_status": "paid",
+      "fulfillment_status": "unfulfilled",
+      "created_at": "2026-06-24T16:05:00Z"
+    },
+    {
+      "id": 1006,
+      "customer_name": "Charlie Brown",
+      "customer_email": "charlie.b@example.com",
+      "items": [
+        {
+          "product_id": 1,
+          "sku": "AURA-WL-HP",
+          "quantity": 2,
+          "price": 199.99
+        }
+      ],
+      "total_price": 399.98,
+      "financial_status": "paid",
+      "fulfillment_status": "unfulfilled",
+      "created_at": "2026-06-25T10:15:00Z"
+    }
+  ],
+  "discounts": [
+    {
+      "code": "WELCOME10",
+      "discount_type": "percentage",
+      "value": 10.0,
+      "status": "active",
+      "usage_count": 45
+    },
+    {
+      "code": "SUMMER20",
+      "discount_type": "percentage",
+      "value": 20.0,
+      "status": "active",
+      "usage_count": 12
+    }
+  ],
+  "notifications": [
+    {
+      "timestamp": "2026-06-25T05:48:10.898230Z",
+      "message": "Found 3 slow moving products. Need to create a discount."
+    }
+  ],
+  "pages": [
+    {
+      "title": "Explore Our Product Catalog",
+      "content": "<h1>Welcome to Our Product Catalog!</h1><p>Discover a wide range of high-quality products curated just for you. Whether you're looking for something new, a perfect gift, or an everyday essential, you'll find it here.</p><p>Start browsing now and find your next favorite item!</p><p><a href=\"/collections/all\">Shop All Products</a></p>",
+      "url_handle": "product-catalog",
+      "status": "published",
+      "created_at": "2026-06-25T07:16:38.819771Z"
+    },
+    {
+      "title": "Minimalist Collection",
+      "content": "\n<div style=\"font-family: sans-serif; text-align: center; padding: 50px;\">\n  <h1 style=\"font-weight: 300; font-size: 3em; margin-bottom: 20px;\">Curated Simplicity</h1>\n  <p style=\"font-size: 1.2em; line-height: 1.6; max-width: 700px; margin: 0 auto 40px;\">\n    Explore our thoughtfully selected range of products, designed with clean lines and a focus on essential elegance. Less is more.\n  </p>\n  <a href=\"/collections/all\" style=\"display: inline-block; padding: 15px 30px; border: 1px solid #000; text-decoration: none; color: #000; font-weight: bold; transition: background-color 0.3s ease;\">Shop the Collection</a>\n</div>\n",
+      "url_handle": "minimalist-collection",
+      "status": "published",
+      "created_at": "2026-06-25T07:19:18.211173Z"
+    },
+    {
+      "title": "NewPageTest",
+      "content": "<h1>Our Products</h1><ul><li><b>Aura Wireless Noise-Canceling Headphones</b>: Premium over-ear headphones with active noise cancellation, 30-hour battery life, and crystal-clear audio quality. Price: $199.99</li><li><b>Apex Ergonomic Office Chair</b>: High-back mesh office chair featuring adjustable lumbar support, 3D armrests, and dynamic tilt functionality. Price: $289.5</li><li><b>Horizon 34-Inch Ultra-Wide Gaming Monitor</b>: Curved QHD display with 144Hz refresh rate, 1ms response time, and HDR10 support for immersive gaming. Price: $449.99</li><li><b>Pulse Smart Fitness Watch</b>: Waterproof fitness tracker with continuous heart rate monitoring, sleep analysis, and built-in GPS. Price: $129.99</li><li><b>Volt 20,000mAh Portable Power Bank</b>: High-capacity external battery pack with dual USB-C Power Delivery ports for ultra-fast charging. Price: $39.99</li><li><b>Sleek Minimalist Leather Wallet</b>: Genuine top-grain leather card holder with RFID-blocking technology and slim pocket profile. Price: $45.0</li><li><b>EcoThread Organic Cotton T-Shirt</b>: Ultra-soft crewneck tee made from 100% certified organic cotton. Pre-shrunk and ethically sourced. Price: $25.0</li></ul>",
+      "url_handle": "newpagetest-products",
+      "status": "published",
+      "created_at": "2026-06-25T07:27:50.008343Z"
+    }
+  ]
+}

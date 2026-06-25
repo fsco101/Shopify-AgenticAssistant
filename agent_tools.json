@@ -1,0 +1,243 @@
+[
+  {
+    "type": "function",
+    "function": {
+      "name": "list_products",
+      "description": "Get a list of all products in the catalog",
+      "parameters": {
+        "type": "object",
+        "properties": {}
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "get_product",
+      "description": "Get specific details for a product by ID",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "product_id": {
+            "type": "integer",
+            "description": "The numeric ID of the product"
+          }
+        },
+        "required": [
+          "product_id"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "update_product",
+      "description": "Update product details such as name, price, or description",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "product_id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "product_id"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "list_inventory",
+      "description": "Get stock levels for all products",
+      "parameters": {
+        "type": "object",
+        "properties": {}
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "update_inventory",
+      "description": "Update the stock quantity for a given product ID or SKU",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "selector": {
+            "type": "string",
+            "description": "The product ID or SKU string"
+          },
+          "quantity": {
+            "type": "integer",
+            "description": "Absolute new inventory quantity to set"
+          },
+          "change": {
+            "type": "integer",
+            "description": "Relative amount to add or subtract from current inventory"
+          }
+        },
+        "required": [
+          "selector"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "list_orders",
+      "description": "Retrieve all customer orders",
+      "parameters": {
+        "type": "object",
+        "properties": {}
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "update_order",
+      "description": "Update the financial or fulfillment status of an order",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "order_id": {
+            "type": "integer"
+          },
+          "financial_status": {
+            "type": "string",
+            "enum": [
+              "paid",
+              "refunded",
+              "partially_refunded",
+              "pending"
+            ]
+          },
+          "fulfillment_status": {
+            "type": "string",
+            "enum": [
+              "fulfilled",
+              "unfulfilled",
+              "cancelled"
+            ]
+          }
+        },
+        "required": [
+          "order_id"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "create_discount",
+      "description": "Create a new discount code",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "The discount code string (e.g. SUMMER20)"
+          },
+          "discount_type": {
+            "type": "string",
+            "enum": [
+              "percentage",
+              "fixed_amount"
+            ]
+          },
+          "value": {
+            "type": "number",
+            "description": "Discount value amount"
+          }
+        },
+        "required": [
+          "code",
+          "discount_type",
+          "value"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "analytics_sales",
+      "description": "Calculate total overall sales, order volume, and average order value",
+      "parameters": {
+        "type": "object",
+        "properties": {}
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "analytics_slow_inventory",
+      "description": "Identify products with high stock but low sales volume",
+      "parameters": {
+        "type": "object",
+        "properties": {}
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "log_notification",
+      "description": "Log an administrative notification or alert to the system",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "create_landing_page",
+      "description": "Create a new landing page for the Shopify store",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string",
+            "description": "HTML content of the landing page"
+          },
+          "url_handle": {
+            "type": "string",
+            "description": "The URL slug for the page"
+          }
+        },
+        "required": [
+          "title",
+          "content",
+          "url_handle"
+        ]
+      }
+    }
+  }
+]
